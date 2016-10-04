@@ -28,14 +28,14 @@ class Enemy(object):
     def change_dir(self):
         east_west = random.randint(1,2)
         if east_west == 1:
-            new_speed_x = -1
+            new_speed_x = -2
         else:
-            new_speed_x = 1
+            new_speed_x = 2
         north_south = random.randint(1,2)
         if north_south == 1:
-            new_speed_y = -1
+            new_speed_y = -2
         else:
-            new_speed_y = 1
+            new_speed_y = 2
         vert_horiz = random.randint(1,2)
         if vert_horiz == 1:
             self.speed_x = new_speed_x
@@ -108,36 +108,36 @@ class Monster(Enemy):
         self.x = 30
         self.y = 30
         self.speed_x = 2
-        self.speed_y = 2
+        self.speed_y = 0
         self.img = pygame.image.load("images/monster.png").convert_alpha()
 
 
 class Goblin(Enemy):
-    def __init__(self, x, y):
-        self.x = x#random.randint(30, 300)
-        self.y = y#random.randint(30, 300)
+    def __init__(self):
+        self.x = 0#random.randint(30, 300)
+        self.y = 100#random.randint(30, 300)
         self.speed_x = 1
         self.speed_y = 1
         self.img = pygame.image.load('images/goblin.png').convert_alpha()
 
-    def change_dir(self):
-        east_west = random.randint(1,2)
-        if east_west == 1:
-            new_speed_x = -1
-        else:
-            new_speed_x = 1
-        north_south = random.randint(1,2)
-        if north_south == 1:
-            new_speed_y = -1
-        else:
-            new_speed_y = 1
-        vert_horiz = random.randint(1,2)
-        if vert_horiz == 1:
-            self.speed_x = new_speed_x
-            self.speed_y = 0
-        else:
-            self.speed_y = new_speed_y
-            self.speed_x = 0
+    # def change_dir(self):
+    #     east_west = random.randint(1,2)
+    #     if east_west == 1:
+    #         new_speed_x = -2
+    #     else:
+    #         new_speed_x = 2
+    #     north_south = random.randint(1,2)
+    #     if north_south == 1:
+    #         new_speed_y = -2
+    #     else:
+    #         new_speed_y = 2
+    #     vert_horiz = random.randint(1,2)
+    #     if vert_horiz == 1:
+    #         self.speed_x = new_speed_x
+    #         self.speed_y = 0
+    #     else:
+    #         self.speed_y = new_speed_y
+    #         self.speed_x = 0
 
     def contact(self, prey):
         if prey.x + 32 < self.x:
@@ -187,7 +187,7 @@ def main():
     #calling instances of Characters
     monster = Monster()
     hero = Hero()
-    goblin = Goblin(100, 100)
+    goblin = Goblin()
 
     #background image
     bkgr_image = pygame.image.load('images/background.png').convert_alpha()
@@ -196,7 +196,7 @@ def main():
     # now = time.time()
     # time_til_direction_change = now + 2
     #section below would go into the loop
-    # if now <= time_til_direction_change:
+    # if now >= time_til_direction_change:
     #     time_til_direction_change = now + 2
     # game loop
     stop_game = False
@@ -276,7 +276,7 @@ def main():
             change_dir_counter_monst = 120
         if change_dir_counter_gob == 0:
             goblin.change_dir()
-            change_dir_counter_monst = 120
+            change_dir_counter_gob = 120
 
 
 

@@ -12,6 +12,7 @@ class Enemy(object):
     def __init__(self, x, y):
         self.x = x
         self.y = y
+        self.change_dir_counter = 120
 
     def move(self, width, height):
         self.x += self.speed_x
@@ -24,6 +25,14 @@ class Enemy(object):
             self.x = width
         if self.y < 0:
             self.y = height
+
+        #self.maybe_direction_change()
+
+    # def maybe_direction_change(self):
+    #     self.change_dir_counter -=1
+    #     if self.change_dir_counter <= 0:
+    #         self.change_dir_counter = 0
+    #         self.change_dir()
 
     def change_dir(self):
         east_west = random.randint(1,2)
@@ -44,6 +53,9 @@ class Enemy(object):
             self.speed_y = new_speed_y
             self.speed_x = 0
 
+    def render(self, screen):
+        screen.blit(self.img, (self.x, self.y))
+
 
 class Hero(object):
     def __init__(self):
@@ -57,14 +69,14 @@ class Hero(object):
         self.x += self.speed_x
         self.y += self.speed_y
 
-        if self.x == 450:
-            self.x = 449
-        if self.y == 415:
-            self.y = 414
+        if self.x > 450:
+            self.x = 450
+        if self.y > 415:
+            self.y = 415
         if self.x < 31:
-            self.x = 32
+            self.x = 31
         if self.y < 31:
-            self.y = 32
+            self.y = 31
 
     def move_event(self,event, KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT):
             if event.type == pygame.KEYDOWN:
@@ -90,6 +102,9 @@ class Hero(object):
                 elif event.key == KEY_RIGHT:
                     self.speed_x = 0
 
+    def render(self, screen):
+        screen.blit(self.img, (self.x, self.y))
+
     def contact(self, prey):
         if prey.x + 32 < self.x:
             pass
@@ -110,7 +125,7 @@ class Monster(Enemy):
         self.speed_x = 2
         self.speed_y = 0
         self.img = pygame.image.load("images/monster.png").convert_alpha()
-
+        self.change_dir_counter = 120
 
 class Goblin(Enemy):
     def __init__(self):
@@ -119,25 +134,7 @@ class Goblin(Enemy):
         self.speed_x = 1
         self.speed_y = 1
         self.img = pygame.image.load('images/goblin.png').convert_alpha()
-
-    # def change_dir(self):
-    #     east_west = random.randint(1,2)
-    #     if east_west == 1:
-    #         new_speed_x = -2
-    #     else:
-    #         new_speed_x = 2
-    #     north_south = random.randint(1,2)
-    #     if north_south == 1:
-    #         new_speed_y = -2
-    #     else:
-    #         new_speed_y = 2
-    #     vert_horiz = random.randint(1,2)
-    #     if vert_horiz == 1:
-    #         self.speed_x = new_speed_x
-    #         self.speed_y = 0
-    #     else:
-    #         self.speed_y = new_speed_y
-    #         self.speed_x = 0
+        self.change_dir_counter = 60
 
     def contact(self, prey):
         if prey.x + 32 < self.x:
@@ -219,7 +216,8 @@ def main():
         #######################################
         # PUT LOGIC TO UPDATE GAME STATE HERE #
         #######################################
-
+        #monster.move()
+        #hero.move()
         # fill background color
         #screen.fill(blue_color)
 
@@ -231,7 +229,7 @@ def main():
         screen.blit(bkgr_image, (0, 0))
 
         #renders hero image
-        screen.blit(hero.img, (hero.x, hero.y))
+        hero.render(screen)
 
 
         # update the canvas display with the currently drawn frame
@@ -250,7 +248,7 @@ def main():
         elif goblin.contact(hero):
             lose_sound.play()
             font = pygame.font.Font(None, 25)
-            text = font.render('GOBLIN GOT YOU!!! Hit ENTER to play again!', True, (0, 0, 0))
+            text = font.render('THE GOBLIN GOT YOU!!! Hit ENTER to play again!', True, (0, 0, 0))
             screen.blit(text, (80, 230))
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
@@ -258,8 +256,8 @@ def main():
                         main()
             pygame.display.update()
         else:
-            screen.blit(monster.img, (monster.x, monster.y))
-            screen.blit(goblin.img, (goblin.x, goblin.y))
+            monster.render(screen)
+            goblin.render(screen)
             monster.move(width, height)
             hero.move(width, height)
             goblin.move(width,height)
@@ -271,10 +269,10 @@ def main():
         clock.tick(60)
         change_dir_counter_monst -= 1
         change_dir_counter_gob -= 1
-        if change_dir_counter_monst == 0:
+        if change_dir_counter_monst <= 0:
             monster.change_dir()
             change_dir_counter_monst = 120
-        if change_dir_counter_gob == 0:
+        if change_dir_counter_gob <= 0:
             goblin.change_dir()
             change_dir_counter_gob = 120
 

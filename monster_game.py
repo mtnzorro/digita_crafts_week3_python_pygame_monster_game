@@ -26,13 +26,13 @@ class Enemy(object):
         if self.y < 0:
             self.y = height
 
-        #self.maybe_direction_change()
+        self.maybe_direction_change()
 
-    # def maybe_direction_change(self):
-    #     self.change_dir_counter -=1
-    #     if self.change_dir_counter <= 0:
-    #         self.change_dir_counter = 0
-    #         self.change_dir()
+    def maybe_direction_change(self):
+        self.change_dir_counter -=1
+        if self.change_dir_counter <= 0:
+            self.change_dir_counter = 120
+            self.change_dir()
 
     def change_dir(self):
         east_west = random.randint(1,2)
@@ -55,6 +55,10 @@ class Enemy(object):
 
     def render(self, screen):
         screen.blit(self.img, (self.x, self.y))
+
+    def respawn(self, width, height):
+        self.x = random.randint(0, width)
+        self.y = random.randint(0, height)
 
 
 class Hero(object):
@@ -127,6 +131,7 @@ class Monster(Enemy):
         self.img = pygame.image.load("images/monster.png").convert_alpha()
         self.change_dir_counter = 120
 
+
 class Goblin(Enemy):
     def __init__(self):
         self.x = 0#random.randint(30, 300)
@@ -154,7 +159,8 @@ def main():
     width = 512
     height = 480
     blue_color = (97, 159, 182)
-
+    game_over = False
+    goblin_win = False
 
     # initialize the pygame framework
     pygame.init()
@@ -207,6 +213,13 @@ def main():
 
             hero.move_event(event, KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT)
 
+            if event.type == pygame.KEYDOWN:
+                if event.key == ENTER:
+                    game_over = False
+                    goblin_win = False
+                    monster.respawn(width, height)
+                    goblin.respawn(width, height)
+
             if event.type == pygame.QUIT:
                 # if they closed the window, set stop_game to True
                 # to exit the main loop
@@ -216,10 +229,18 @@ def main():
         #######################################
         # PUT LOGIC TO UPDATE GAME STATE HERE #
         #######################################
-        #monster.move()
-        #hero.move()
-        # fill background color
-        #screen.fill(blue_color)
+        monster.move(width,height)
+        hero.move(width, height)
+        goblin.move(width, height)
+
+        if not game_over and hero.contact(monster):
+            win_sound.play()
+            game_over = True
+
+        if not game_over and goblin.contact(hero):
+            lose_sound.play()
+            goblin_win = True
+            game_over = True
 
         ################################
         # PUT CUSTOM DISPLAY CODE HERE #
@@ -229,52 +250,69 @@ def main():
         screen.blit(bkgr_image, (0, 0))
 
         #renders hero image
+
+
         hero.render(screen)
+        if game_over:
+            if goblin_win == True:
+                font = pygame.font.Font(None, 25)
+                text = font.render('THE GOBLIN GOT YOU!!! Hit ENTER to play again!', True, (0, 0, 0))
+                screen.blit(text, (80, 230))
+            else:
+                font = pygame.font.Font(None, 25)
+                text = font.render('Hit ENTER to play again!', True, (0, 0, 0))
+                screen.blit(text, (150, 230))
+
+        else:
+             monster.render(screen)
+             goblin.render(screen)
 
 
         # update the canvas display with the currently drawn frame
 
-        if hero.contact(monster):
-            win_sound.play()
-            font = pygame.font.Font(None, 25)
-            text = font.render('Hit ENTER to play again!', True, (0, 0, 0))
-            screen.blit(text, (150, 230))
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == ENTER:
-                        #hero.contact = False
-                        main()
-            pygame.display.update()
-        elif goblin.contact(hero):
-            lose_sound.play()
-            font = pygame.font.Font(None, 25)
-            text = font.render('THE GOBLIN GOT YOU!!! Hit ENTER to play again!', True, (0, 0, 0))
-            screen.blit(text, (80, 230))
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == ENTER:
-                        main()
-            pygame.display.update()
-        else:
-            monster.render(screen)
-            goblin.render(screen)
-            monster.move(width, height)
-            hero.move(width, height)
-            goblin.move(width,height)
-            pygame.display.update()
+        # if hero.contact(monster):
+            # win_sound.play()
+            # font = pygame.font.Font(None, 25)
+            # text = font.render('Hit ENTER to play again!', True, (0, 0, 0))
+            # screen.blit(text, (150, 230))
+            # for event in pygame.event.get():
+            #     if event.type == pygame.KEYDOWN:
+            #         if event.key == ENTER:
+            #             #hero.contact = False
+            #             main()
+            # pygame.display.update()
+            # goblin.contact(hero):
+            # lose_sound.play()
+            # font = pygame.font.Font(None, 25)
+            # text = font.render('THE GOBLIN GOT YOU!!! Hit ENTER to play again!', True, (0, 0, 0))
+            # screen.blit(text, (80, 230))
+        #     for event in pygame.event.get():
+        #         # if event.type == pygame.KEYDOWN:
+        #         #     if event.key == ENTER:
+        #         #         #game_over = False
+        #         #         #monster.respawn()
+        #     #             main()
+        #     # pygame.display.update()
+        # else:
+        #     monster.render(screen)
+        #     goblin.render(screen)
+        #     monster.move(width, height)
+        #     hero.move(width, height)
+        #     goblin.move(width,height)
+        pygame.display.update()
 
 
 
         # tick the clock to enforce a max framerate
         clock.tick(60)
-        change_dir_counter_monst -= 1
-        change_dir_counter_gob -= 1
-        if change_dir_counter_monst <= 0:
-            monster.change_dir()
-            change_dir_counter_monst = 120
-        if change_dir_counter_gob <= 0:
-            goblin.change_dir()
-            change_dir_counter_gob = 120
+        # change_dir_counter_monst -= 1
+        # change_dir_counter_gob -= 1
+        # if change_dir_counter_monst <= 0:
+        #     monster.change_dir()
+        #     change_dir_counter_monst = 120
+        # if change_dir_counter_gob <= 0:
+        #     goblin.change_dir()
+        #     change_dir_counter_gob = 120
 
 
 

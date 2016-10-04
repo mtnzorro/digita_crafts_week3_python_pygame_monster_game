@@ -154,7 +154,7 @@ class Goblin(Enemy):
 
 def main():
     # declare the size of the canvas
-    width = 510
+    width = 512
     height = 480
     blue_color = (97, 159, 182)
 
@@ -192,6 +192,12 @@ def main():
     #background image
     bkgr_image = pygame.image.load('images/background.png').convert_alpha()
 
+    #time
+    # now = time.time()
+    # time_til_direction_change = now + 2
+    #section below would go into the loop
+    # if now <= time_til_direction_change:
+    #     time_til_direction_change = now + 2
     # game loop
     stop_game = False
     while not stop_game:
@@ -215,7 +221,7 @@ def main():
         #######################################
 
         # fill background color
-        screen.fill(blue_color)
+        #screen.fill(blue_color)
 
         ################################
         # PUT CUSTOM DISPLAY CODE HERE #

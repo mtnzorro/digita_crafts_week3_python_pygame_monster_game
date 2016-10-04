@@ -73,6 +73,8 @@ class Hero(object):
         self.speed_x = 0
         self.speed_y = 0
         self.img = pygame.image.load("images/hero.png").convert_alpha()
+        self.count = 0
+        self.level = 'Level: 0'
 
     def move(self, width, height):
         self.x += self.speed_x
@@ -92,13 +94,13 @@ class Hero(object):
                 # activate the cooresponding speeds
                 # when an arrow key is pressed down
                 if event.key == KEY_DOWN:
-                    self.speed_y = 1
+                    self.speed_y = 3
                 elif event.key == KEY_UP:
-                    self.speed_y = -1
+                    self.speed_y = -3
                 elif event.key == KEY_LEFT:
-                    self.speed_x = -1
+                    self.speed_x = -3
                 elif event.key == KEY_RIGHT:
-                    self.speed_x = 1
+                    self.speed_x = 3
             if event.type == pygame.KEYUP:
                 # deactivate the cooresponding speeds
                 # when an arrow key is released
@@ -129,6 +131,11 @@ class Hero(object):
     def freeze(self):
         self.speed_x = 0
         self.speed_y = 0
+
+    def level_up(self, level):
+        self.count += 1
+        self.level = 'Level: %d' % self.count
+
 
 
 class Monster(Enemy):
@@ -170,6 +177,8 @@ def main():
     blue_color = (97, 159, 182)
     game_over = False
     goblin_win = False
+    level= 0
+    level_str = '%d' % level
 
     # initialize the pygame framework
     pygame.init()
@@ -196,17 +205,18 @@ def main():
     change_dir_counter_monst = 120
     change_dir_counter_gob = 180
 
+
+
     #calling instances of Characters
     monster = Monster()
     hero = Hero()
-    goblin_list = [
-            Goblin(),
-            Goblin(),
-            Goblin(),
-            Goblin()
-            ]
+    goblin_list = []
     #background image
     bkgr_image = pygame.image.load('images/background.png').convert_alpha()
+
+    #level counter
+
+    # screen.blit(level_cnt, (50, 100))
 
     #time
     # now = time.time()
@@ -228,6 +238,13 @@ def main():
 
             if event.type == pygame.KEYDOWN:
                 if event.key == ENTER:
+                    if goblin_win == False:
+                        goblin_list.append(Goblin())
+                        hero.level_up(level)
+
+                        print level
+                    else:
+                        pass
                     game_over = False
                     goblin_win = False
                     monster.respawn(width, height)
@@ -267,6 +284,10 @@ def main():
 
         screen.blit(bkgr_image, (0, 0))
 
+        font = pygame.font.Font(None, 25)
+        level_cnt = font.render(hero.level, True, (0, 0, 0))
+        screen.blit(level_cnt, (35, 35))
+
         #renders hero image
 
 
@@ -276,11 +297,13 @@ def main():
             if goblin_win == True:
                 font = pygame.font.Font(None, 25)
                 text = font.render('THE GOBLIN GOT YOU!!! Hit ENTER to play again!', True, (0, 0, 0))
-                screen.blit(text, (80, 230))
+                screen.blit(text, (50, 230))
             else:
                 font = pygame.font.Font(None, 25)
                 text = font.render('Hit ENTER to play again!', True, (0, 0, 0))
                 screen.blit(text, (150, 230))
+
+                # level += 1
 
         else:
              monster.render(screen)
